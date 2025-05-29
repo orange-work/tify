@@ -11,6 +11,7 @@ import EnvNav from './env-nav'
 import PluginsNav from './plugins-nav'
 import ExploreNav from './explore-nav'
 import ToolsNav from './tools-nav'
+import ApiOrchestrationNav from './api-orchestration-nav'
 import { WorkspaceProvider } from '@/context/workspace-context'
 import { useAppContext } from '@/context/app-context'
 import DifyLogo from '@/app/components/base/logo/dify-logo'
@@ -102,6 +103,7 @@ const Header = () => {
             {!isCurrentWorkspaceDatasetOperator && <ExploreNav className={navClassName} />}
             {!isCurrentWorkspaceDatasetOperator && <AppNav />}
             {(isCurrentWorkspaceEditor || isCurrentWorkspaceDatasetOperator) && <DatasetNav />}
+            {!isCurrentWorkspaceDatasetOperator && <ApiOrchestrationNav className={navClassName} />}
             {!isCurrentWorkspaceDatasetOperator && <ToolsNav className={navClassName} />}
           </div>
         )
@@ -119,6 +121,7 @@ const Header = () => {
             {!isCurrentWorkspaceDatasetOperator && <ExploreNav className={navClassName} />}
             {!isCurrentWorkspaceDatasetOperator && <AppNav />}
             {(isCurrentWorkspaceEditor || isCurrentWorkspaceDatasetOperator) && <DatasetNav />}
+            {!isCurrentWorkspaceDatasetOperator && <ApiOrchestrationNav className={navClassName} />}
             {!isCurrentWorkspaceDatasetOperator && <ToolsNav className={navClassName} />}
           </div>
         )
