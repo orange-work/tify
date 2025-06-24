@@ -26,6 +26,7 @@ from .dataset import (
     TidbAuthBinding,
     Whitelist,
 )
+from .business_line import BusinessLine, AccountBusinessLine, AppBusinessLine
 from .engine import db
 from .enums import CreatorUserRole, UserFrom, WorkflowRunTriggeredFrom
 from .model import (
@@ -168,6 +169,9 @@ __all__ = [
     "UploadFile",
     "UserFrom",
     "Whitelist",
+    "BusinessLine",
+    "AccountBusinessLine",
+    "AppBusinessLine",
     "Workflow",
     "WorkflowAppLog",
     "WorkflowAppLogCreatedFrom",
