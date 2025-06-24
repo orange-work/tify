@@ -57,6 +57,7 @@ const translation = {
     forAdvanced: 'FOR ADVANCED USERS',
     noIdeaTip: 'No ideas? Check out our templates',
     captionName: 'App Name & Icon',
+    businessLine: 'Business Line',
     appNamePlaceholder: 'Give your app a name',
     captionDescription: 'Description',
     optional: 'Optional',

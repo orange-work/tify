@@ -166,6 +166,7 @@ api.add_resource(
 
 # Import tag controllers
 from .tag import tags
+from . import business_line
 
 # Import workspace controllers
 from .workspace import (

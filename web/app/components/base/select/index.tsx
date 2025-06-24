@@ -76,7 +76,7 @@ const Select: FC<ISelectProps> = ({
 
     setSelectedItem(defaultSelect)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultValue])
+  }, [defaultValue, items])
 
   const filteredItems: Item[]
     = query === ''
@@ -197,7 +197,7 @@ const SimpleSelect: FC<ISelectProps> = ({
 
     setSelectedItem(defaultSelect)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultValue])
+  }, [defaultValue, items])
 
   return (
     <Listbox

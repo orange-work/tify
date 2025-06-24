@@ -18,6 +18,7 @@ from core.tools.utils.configuration import ToolParameterConfigurationManager
 from events.app_event import app_was_created
 from extensions.ext_database import db
 from models.account import Account
+from models.business_line import BusinessLine, AccountBusinessLine, AppBusinessLine
 from models.model import App, AppMode, AppModelConfig, Site
 from models.tools import ApiToolProvider
 from services.enterprise.enterprise_service import EnterpriseService
@@ -62,8 +63,14 @@ class AppService:
             else:
                 return None
 
+        query = db.select(App)
+
+        if args.get("business_line_id"):
+            query = query.join(AppBusinessLine, App.id == AppBusinessLine.app_id)
+            filters.append(AppBusinessLine.business_line_id == args["business_line_id"])
+
         app_models = db.paginate(
-            db.select(App).where(*filters).order_by(App.created_at.desc()),
+            query.where(*filters).order_by(App.created_at.desc()),
             page=args["page"],
             per_page=args["limit"],
             error_out=False,
@@ -142,6 +149,34 @@ class AppService:
 
         db.session.add(app)
         db.session.flush()
+
+        business_line_id = args.get("business_line_id")
+        if business_line_id:
+            business_line = db.session.query(BusinessLine).filter_by(id=business_line_id).first()
+            if not business_line:
+                raise ValueError("Invalid business line id")
+            logging.info(f"用户输入的业务线为{business_line.name}")
+
+            account_bl = (
+                db.session.query(AccountBusinessLine)
+                .filter_by(account_id=account.id, business_line_id=business_line.id)
+                .first()
+            )
+            if not account_bl:
+                account_bl = AccountBusinessLine(
+                    account_id=account.id,
+                    business_line_id=business_line.id,
+                    status=1,
+                )
+                db.session.add(account_bl)
+
+            app_bl = AppBusinessLine(
+                app_id=app.id,
+                account_id=account.id,
+                business_line_id=business_line.id,
+                status=1,
+            )
+            db.session.add(app_bl)
 
         if default_model_config:
             app_model_config = AppModelConfig(**default_model_config)

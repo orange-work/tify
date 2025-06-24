@@ -58,6 +58,7 @@ const translation = {
     forAdvanced: '进阶用户适用',
     noIdeaTip: '没有想法？试试我们的模板',
     captionName: '应用名称 & 图标',
+    businessLine: '业务线',
     appNamePlaceholder: '给你的应用起个名字',
     optional: '可选',
     captionDescription: '描述',

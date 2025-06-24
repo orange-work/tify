@@ -21,7 +21,9 @@ import { ToastContext } from '@/app/components/base/toast'
 import type { AppMode } from '@/types/app'
 import { AppModes } from '@/types/app'
 import { createApp } from '@/service/apps'
+import { fetchBusinessLines, type BusinessLine } from '@/service/business-line'
 import Input from '@/app/components/base/input'
+import { SimpleSelect } from '@/app/components/base/select'
 import Textarea from '@/app/components/base/textarea'
 import AppIcon from '@/app/components/base/app-icon'
 import AppsFull from '@/app/components/billing/apps-full-in-dialog'
@@ -48,6 +50,8 @@ function CreateApp({ onClose, onSuccess, onCreateFromTemplate }: CreateAppProps)
   const [showAppIconPicker, setShowAppIconPicker] = useState(false)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [businessLine, setBusinessLine] = useState('')
+  const [businessLineOptions, setBusinessLineOptions] = useState<Array<{ value: string; name: string }>>([])
   const [isAppTypeExpanded, setIsAppTypeExpanded] = useState(false)
 
   const { plan, enableBilling } = useProviderContext()
@@ -63,6 +67,15 @@ function CreateApp({ onClose, onSuccess, onCreateFromTemplate }: CreateAppProps)
     if (category && AppModes.includes(category as AppMode))
       setAppMode(category as AppMode)
   }, [searchParams])
+
+  useEffect(() => {
+    fetchBusinessLines().then((res) => {
+      const opts = res.map((v: BusinessLine) => ({ value: v.id, name: v.name }))
+      setBusinessLineOptions(opts)
+      if (opts.length > 0)
+        setBusinessLine(opts[0].value)
+    })
+  }, [])
 
   const onCreate = useCallback(async () => {
     if (!appMode) {
@@ -84,6 +97,7 @@ function CreateApp({ onClose, onSuccess, onCreateFromTemplate }: CreateAppProps)
         icon: appIcon.type === 'emoji' ? appIcon.icon : appIcon.fileId,
         icon_background: appIcon.type === 'emoji' ? appIcon.background : undefined,
         mode: appMode,
+        business_line_id: businessLine,
       })
       notify({ type: 'success', message: t('app.newApp.appCreated') })
       onSuccess()
@@ -96,7 +110,7 @@ function CreateApp({ onClose, onSuccess, onCreateFromTemplate }: CreateAppProps)
       notify({ type: 'error', message: t('app.newApp.appCreateFailed') })
     }
     isCreatingRef.current = false
-  }, [name, notify, t, appMode, appIcon, description, onSuccess, onClose, mutateApps, push, isCurrentWorkspaceEditor])
+  }, [name, notify, t, appMode, appIcon, description, businessLine, onSuccess, onClose, mutateApps, push, isCurrentWorkspaceEditor])
 
   const { run: handleCreateApp } = useDebounceFn(onCreate, { wait: 300 })
   useKeyPress(['meta.enter', 'ctrl.enter'], () => {
@@ -214,6 +228,18 @@ function CreateApp({ onClose, onSuccess, onCreateFromTemplate }: CreateAppProps)
                   setShowAppIconPicker(false)
                 }}
               />}
+            </div>
+            <div>
+              <div className='mb-1 flex h-6 items-center'>
+                <label className='system-sm-semibold text-text-secondary'>{t('app.newApp.businessLine')}</label>
+              </div>
+              <SimpleSelect
+                wrapperClassName='w-full'
+                items={businessLineOptions}
+                defaultValue={businessLine}
+                onSelect={item => setBusinessLine(item.value as string)}
+                notClearable
+              />
             </div>
             <div>
               <div className='mb-1 flex h-6 items-center'>

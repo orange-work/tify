@@ -64,6 +64,7 @@ class AppListApi(Resource):
         parser.add_argument("name", type=str, location="args", required=False)
         parser.add_argument("tag_ids", type=uuid_list, location="args", required=False)
         parser.add_argument("is_created_by_me", type=inputs.boolean, location="args", required=False)
+        parser.add_argument("business_line_id", type=str, location="args", required=False)
 
         args = parser.parse_args()
 
@@ -99,6 +100,7 @@ class AppListApi(Resource):
         parser.add_argument("icon_type", type=str, location="json")
         parser.add_argument("icon", type=str, location="json")
         parser.add_argument("icon_background", type=str, location="json")
+        parser.add_argument("business_line_id", type=str, location="json")
         args = parser.parse_args()
 
         # The role of the current user in the ta table must be admin, owner, or editor

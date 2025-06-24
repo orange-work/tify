@@ -17,8 +17,8 @@ export const fetchAppTemplates: Fetcher<AppTemplatesResponse, { url: string }> =
   return get<AppTemplatesResponse>(url)
 }
 
-export const createApp: Fetcher<AppDetailResponse, { name: string; icon_type?: AppIconType; icon?: string; icon_background?: string; mode: AppMode; description?: string; config?: ModelConfig }> = ({ name, icon_type, icon, icon_background, mode, description, config }) => {
-  return post<AppDetailResponse>('apps', { body: { name, icon_type, icon, icon_background, mode, description, model_config: config } })
+export const createApp: Fetcher<AppDetailResponse, { name: string; icon_type?: AppIconType; icon?: string; icon_background?: string; mode: AppMode; description?: string; business_line_id?: string; config?: ModelConfig }> = ({ name, icon_type, icon, icon_background, mode, description, business_line_id, config }) => {
+  return post<AppDetailResponse>('apps', { body: { name, icon_type, icon, icon_background, mode, description, business_line_id, model_config: config } })
 }
 
 export const updateAppInfo: Fetcher<AppDetailResponse, { appID: string; name: string; icon_type: AppIconType; icon: string; icon_background?: string; description: string; use_icon_as_answer_icon?: boolean }> = ({ appID, name, icon_type, icon, icon_background, description, use_icon_as_answer_icon }) => {

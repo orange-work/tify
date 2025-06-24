@@ -29,6 +29,8 @@ import { useStore as useTagStore } from '@/app/components/base/tag-management/st
 import TagManagementModal from '@/app/components/base/tag-management'
 import TagFilter from '@/app/components/base/tag-management/filter'
 import CheckboxWithLabel from '@/app/components/datasets/create/website/base/checkbox-with-label'
+import { SimpleSelect } from '@/app/components/base/select'
+import { fetchBusinessLines, type BusinessLine } from '@/service/business-line'
 
 const getKey = (
   pageIndex: number,
@@ -37,6 +39,7 @@ const getKey = (
   isCreatedByMe: boolean,
   tags: string[],
   keywords: string,
+  businessLineId: string,
 ) => {
   if (!pageIndex || previousPageData.has_more) {
     const params: any = { url: 'apps', params: { page: pageIndex + 1, limit: 30, name: keywords, is_created_by_me: isCreatedByMe } }
@@ -48,6 +51,9 @@ const getKey = (
 
     if (tags.length)
       params.params.tag_ids = tags
+
+    if (businessLineId)
+      params.params.business_line_id = businessLineId
 
     return params
   }
@@ -62,10 +68,12 @@ const Apps = () => {
   const [activeTab, setActiveTab] = useTabSearchParams({
     defaultTab: 'all',
   })
-  const { query: { tagIDs = [], keywords = '', isCreatedByMe: queryIsCreatedByMe = false }, setQuery } = useAppsQueryState()
+  const { query: { tagIDs = [], keywords = '', isCreatedByMe: queryIsCreatedByMe = false, businessLineId: queryBusinessLineId }, setQuery } = useAppsQueryState()
   const [isCreatedByMe, setIsCreatedByMe] = useState(queryIsCreatedByMe)
   const [tagFilterValue, setTagFilterValue] = useState<string[]>(tagIDs)
   const [searchKeywords, setSearchKeywords] = useState(keywords)
+  const [businessLine, setBusinessLine] = useState(queryBusinessLineId || '')
+  const [businessLineOptions, setBusinessLineOptions] = useState<Array<{ value: string; name: string }>>([])
   const newAppCardRef = useRef<HTMLDivElement>(null)
   const setKeywords = useCallback((keywords: string) => {
     setQuery(prev => ({ ...prev, keywords }))
@@ -75,7 +83,7 @@ const Apps = () => {
   }, [setQuery])
 
   const { data, isLoading, error, setSize, mutate } = useSWRInfinite(
-    (pageIndex: number, previousPageData: AppListResponse) => getKey(pageIndex, previousPageData, activeTab, isCreatedByMe, tagIDs, searchKeywords),
+    (pageIndex: number, previousPageData: AppListResponse) => getKey(pageIndex, previousPageData, activeTab, isCreatedByMe, tagIDs, searchKeywords, businessLine),
     fetchAppList,
     {
       revalidateFirstPage: true,
@@ -106,6 +114,17 @@ const Apps = () => {
     if (isCurrentWorkspaceDatasetOperator)
       return router.replace('/datasets')
   }, [router, isCurrentWorkspaceDatasetOperator])
+
+  useEffect(() => {
+    fetchBusinessLines().then((res) => {
+      const opts = res.map((v: BusinessLine) => ({ value: v.id, name: v.name }))
+      setBusinessLineOptions(opts)
+      const value = queryBusinessLineId ?? opts[0]?.value ?? ''
+      setBusinessLine(value)
+      if (!queryBusinessLineId && opts.length > 0)
+        setQuery(prev => ({ ...prev, businessLineId: opts[0].value }))
+    })
+  }, [queryBusinessLineId, setQuery])
 
   useEffect(() => {
     const hasMore = data?.at(-1)?.has_more ?? true
@@ -149,6 +168,11 @@ const Apps = () => {
     setQuery(prev => ({ ...prev, isCreatedByMe: newValue }))
   }, [isCreatedByMe, setQuery])
 
+  const handleBusinessLineChange = (value: string) => {
+    setBusinessLine(value)
+    setQuery(prev => ({ ...prev, businessLineId: value }))
+  }
+
   return (
     <>
       <div className='sticky top-0 z-10 flex flex-wrap items-center justify-between gap-y-2 bg-background-body px-12 pb-2 pt-4 leading-[56px]'>
@@ -163,6 +187,14 @@ const Apps = () => {
             label={t('app.showMyCreatedAppsOnly')}
             isChecked={isCreatedByMe}
             onChange={handleCreatedByMeChange}
+          />
+          <SimpleSelect
+            wrapperClassName='w-[120px]'
+            items={businessLineOptions}
+            defaultValue={businessLine}
+            onSelect={item => handleBusinessLineChange(item.value as string)}
+            placeholder={t('app.newApp.businessLine') || ''}
+            notClearable
           />
           <TagFilter type='app' value={tagFilterValue} onChange={handleTagsChange} />
           <Input
